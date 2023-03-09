@@ -1,0 +1,72 @@
+#Author: Shaoyu Hsu
+#LinkedIn Job Finder
+
+
+from selenium.webdriver.common.by import By
+from selenium import webdriver
+import time
+
+def running(url,mustAll,mustOne):
+    def hasKeywords(a_string, mustAll,mustOne):
+        for m in mustAll:
+            if m.lower() not in a_string.lower():
+                return False
+        o_list=[True for o in mustOne if o.lower() in a_string]
+        if True not in o_list:
+            return False
+        return True
+
+    def parse(driver,url,mustAll,mustOne):
+        driver.get(url)
+        time.sleep(5)
+        reachesTheEnd=False
+        i=1
+        while reachesTheEnd==False:
+            try:
+                driver.find_element(By.CSS_SELECTOR,f'#main-content > section > ul > li:nth-child({i}) > div').click()
+                time.sleep(2)
+                try:
+                    title = (driver.find_element(By.CSS_SELECTOR,"body > div.base-serp-page > div > section > div.details-pane__content.details-pane__content--show > section > div > div>div>a>h2").get_attribute('textContent')).lstrip()
+                except:
+                    title='N/A'
+                try:
+                    company = (driver.find_element(By.CSS_SELECTOR,
+                                                   "body > div.base-serp-page > div > section > div.details-pane__content.details-pane__content--show > section > div > div>div>h4>div>span>a").get_attribute(
+                        'textContent')).strip()
+                except:
+                    company='N/A'
+                try:
+                    url = (driver.find_element(By.CSS_SELECTOR,"body > div.base-serp-page > div > section > div.details-pane__content.details-pane__content--show > section > div > div>div>a").get_attribute('href')).lstrip()
+                except:
+                    url='N/A'
+                try:
+                    driver.find_element(By.CSS_SELECTOR,'body > div.base-serp-page > div > section > div.details-pane__content.details-pane__content--show > div > section.core-section-container.my-3.description > div > div > section > button.show-more-less-html__button.show-more-less-html__button--more').click()
+                    detail = (driver.find_element(By.CSS_SELECTOR,"body > div.base-serp-page > div > section > div.details-pane__content.details-pane__content--show > div > section.core-section-container.my-3.description > div > div > section > div").get_attribute('textContent')).lstrip()
+                    time.sleep(0.5)
+                    if hasKeywords(detail, mustAll,mustOne):
+                        print(f'({company}) {title}: {url}')
+                except:
+                    print()
+                i=i+1
+            except:
+                reachesTheEnd=True
+
+    op = webdriver.ChromeOptions()
+    chromedriver = r'chromedriver.exe'
+    op.add_argument('headless')
+    driver = webdriver.Chrome(executable_path=chromedriver, options=op)
+    driver.maximize_window()
+    time.sleep(1)
+    parse(driver, url, mustAll,mustOne)
+
+titles=['Software Engineer','QA Engineer']
+#Mode 1: On-site. 2: Remote 3: Hybrid
+mode='2,3'
+location='California'
+mustHaveAll=['python']
+mustHaveOne=['selenium','sql']
+
+for title in titles:
+    print(title)
+    url=f"https://www.linkedin.com/jobs/search/?&f_WT={mode.replace(',','%2C')}&location={location}&keywords={title.replace(' ','%20')}"
+    running(url,mustHaveAll,mustHaveOne)
