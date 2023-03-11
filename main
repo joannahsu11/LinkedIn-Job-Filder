@@ -8,25 +8,31 @@ from selenium import webdriver
 import time
 
 def startExecute():
-    mode = f'{onsite.get()},{remote.get()},{hybrid.get()}'.replace('0,', '').replace(',0', '')
+    mode = []
+    if onsite.get() != 0:
+        mode.append(str(onsite.get()))
+    if remote.get() != 0:
+        mode.append(str(remote.get()))
+    if hybrid.get() != 0:
+        mode.append(str(hybrid.get()))
+    mode = ','.join(mode)
+
     for title in (titles.get()).split(','):
         url=f"https://www.linkedin.com/jobs/search/?&f_WT={mode.replace(',','%2C')}&location={(location.get()).replace(' ','%20')}&keywords={title.replace(' ','%20')}"
-        running(url,mustHaveAll.get(),mustHaveOne.get())
+        running(url,(mustHaveAll.get()).split(','),(mustHaveOne.get()).split(','))
 
 def running(url,mustAll,mustOne):
     def hasKeywords(a_string, mustAll,mustOne):
         for m in mustAll:
             if m.lower() not in a_string.lower():
-                return False
+                return []
         myList = []
         for x in mustOne:
             if x.lower() in a_string.lower():
-                myList.append(True)
-            else:
-                myList.append(False)
-        if myList and True not in myList:
-            return False
-        return True
+                myList.append(x)
+        if myList is None:
+            return []
+        return myList
 
     def parse(driver,url,mustAll,mustOne):
         driver.get(url)
@@ -56,8 +62,9 @@ def running(url,mustAll,mustOne):
                     driver.find_element(By.CSS_SELECTOR,'body > div.base-serp-page > div > section > div.details-pane__content.details-pane__content--show > div > section.core-section-container.my-3.description > div > div > section > button.show-more-less-html__button.show-more-less-html__button--more').click()
                     detail = (driver.find_element(By.CSS_SELECTOR,"body > div.base-serp-page > div > section > div.details-pane__content.details-pane__content--show > div > section.core-section-container.my-3.description > div > div > section > div").get_attribute('textContent')).lstrip()
                     time.sleep(0.5)
-                    if hasKeywords(detail, mustAll,mustOne):
-                        print(f'({company}) {title}: {url}')
+                    matched=hasKeywords(detail, mustAll,mustOne)
+                    if matched is not None:
+                        print(f'[{",".join(matched)}] ({company}) {title}: {url}')
                 except:
                     print()
                 i=i+1
@@ -66,11 +73,13 @@ def running(url,mustAll,mustOne):
 
     op = webdriver.ChromeOptions()
     chromedriver = r'chromedriver.exe'
-    #op.add_argument('headless')
+    op.add_argument('headless')
     driver = webdriver.Chrome(executable_path=chromedriver, options=op)
     driver.maximize_window()
     time.sleep(1)
     parse(driver, url, mustAll,mustOne)
+    root.destroy()
+
 
 root = Tk()
 root.geometry('500x300')
@@ -78,6 +87,7 @@ root.geometry('500x300')
 tk.Label(root,text='Job Title(s)').place(x=10,y=10)
 titles=tk.Entry(root,width=30)
 titles.place(x=100,y=10)
+tk.Label(root,text='*').place(x=290,y=8)
 
 tk.Label(root,text='Location').place(x=10,y=40)
 location=tk.Entry(root,width=30)
@@ -87,10 +97,12 @@ tk.Label(root,text='(one location only)').place(x=290,y=40)
 tk.Label(root,text='Must have all of the following keyword(s)').place(x=10,y=70)
 mustHaveAll=tk.Entry(root,width=30)
 mustHaveAll.place(x=250,y=70)
+tk.Label(root,text='*').place(x=440,y=68)
 
 tk.Label(root,text='Must have one of the following keyword(s)').place(x=10,y=100)
 mustHaveOne=tk.Entry(root,width=30)
 mustHaveOne.place(x=250,y=100)
+tk.Label(root,text='*').place(x=440,y=98)
 
 onsite = tk.IntVar()
 remote = tk.IntVar()
@@ -108,6 +120,9 @@ m3.place(x=290,y=130)
 
 button = Button(root,text='Start',command=lambda: startExecute())
 button.place(x=220,y=180)
-tk.Label(root,text='separate your answers by ","').place(x=290,y=180)
-tk.Label(root,text='!! Only jobs that match your requirements will be displayed !!').place(x=90,y=220)
+tk.Label(root,text='* separate your answers by ","').place(x=290,y=180)
+warning=tk.Label(root,text='Only jobs that match your requirements will be displayed')
+
+warning.configure(background='yellow')
+warning.place(x=90,y=220)
 root.mainloop()
