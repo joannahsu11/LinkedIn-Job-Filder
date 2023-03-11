@@ -1,17 +1,24 @@
 #Author: Shaoyu Hsu
 #LinkedIn Job Finder
 
-
+import tkinter as tk
+from tkinter import *
 from selenium.webdriver.common.by import By
 from selenium import webdriver
 import time
 
+def startExecute():
+    mode = f'{onsite.get()},{remote.get()},{hybrid.get()}'.replace('0,', '').replace(',0', '')
+    for title in (titles.get()).split(','):
+        url=f"https://www.linkedin.com/jobs/search/?&f_WT={mode.replace(',','%2C')}&location={(location.get()).replace(' ','%20')}&keywords={title.replace(' ','%20')}"
+        running(url,mustHaveAll.get(),mustHaveOne.get())
+
 def running(url,mustAll,mustOne):
     def hasKeywords(a_string, mustAll,mustOne):
         for m in mustAll:
-        if m.lower() not in a_string.lower():
-            return False
-        myList=[]
+            if m.lower() not in a_string.lower():
+                return False
+        myList = []
         for x in mustOne:
             if x.lower() in a_string.lower():
                 myList.append(True)
@@ -27,6 +34,7 @@ def running(url,mustAll,mustOne):
         reachesTheEnd=False
         i=1
         while reachesTheEnd==False:
+            print(i)
             try:
                 driver.find_element(By.CSS_SELECTOR,f'#main-content > section > ul > li:nth-child({i}) > div').click()
                 time.sleep(2)
@@ -58,23 +66,48 @@ def running(url,mustAll,mustOne):
 
     op = webdriver.ChromeOptions()
     chromedriver = r'chromedriver.exe'
-    op.add_argument('headless')
+    #op.add_argument('headless')
     driver = webdriver.Chrome(executable_path=chromedriver, options=op)
     driver.maximize_window()
     time.sleep(1)
     parse(driver, url, mustAll,mustOne)
 
-titles=['Software Engineer','QA Engineer']
-#Mode 1: On-site. 2: Remote 3: Hybrid
-mode='2,3'
-location='California'
+root = Tk()
+root.geometry('500x300')
 
-# mustHaveAll List: All the keywords should be in the JD
-# mustHaveOne List: One of the keywords should be in the JD
-mustHaveAll=[]
-mustHaveOne=[]
+tk.Label(root,text='Job Title(s)').place(x=10,y=10)
+titles=tk.Entry(root,width=30)
+titles.place(x=100,y=10)
 
-for title in titles:
-    print(title)
-    url=f"https://www.linkedin.com/jobs/search/?&f_WT={mode.replace(',','%2C')}&location={location}&keywords={title.replace(' ','%20')}"
-    running(url,mustHaveAll,mustHaveOne)
+tk.Label(root,text='Location').place(x=10,y=40)
+location=tk.Entry(root,width=30)
+location.place(x=100,y=40)
+tk.Label(root,text='(one location only)').place(x=290,y=40)
+
+tk.Label(root,text='Must have all of the following keyword(s)').place(x=10,y=70)
+mustHaveAll=tk.Entry(root,width=30)
+mustHaveAll.place(x=250,y=70)
+
+tk.Label(root,text='Must have one of the following keyword(s)').place(x=10,y=100)
+mustHaveOne=tk.Entry(root,width=30)
+mustHaveOne.place(x=250,y=100)
+
+onsite = tk.IntVar()
+remote = tk.IntVar()
+hybrid = tk.IntVar()
+
+m1 = tk.Checkbutton(root, text='On-site',variable=onsite, onvalue=1, offvalue=0)
+m1.place(x=120,y=130)
+
+m2 = tk.Checkbutton(root, text='Remote',variable=remote, onvalue=2, offvalue=0)
+m2.place(x=205,y=130)
+
+m3 = tk.Checkbutton(root, text='Hybrid',variable=hybrid, onvalue=3, offvalue=0)
+m3.place(x=290,y=130)
+
+
+button = Button(root,text='Start',command=lambda: startExecute())
+button.place(x=220,y=180)
+tk.Label(root,text='separate your answers by ","').place(x=290,y=180)
+tk.Label(root,text='!! Only jobs that match your requirements will be displayed !!').place(x=90,y=220)
+root.mainloop()
