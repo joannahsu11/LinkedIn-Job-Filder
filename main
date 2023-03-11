@@ -63,7 +63,7 @@ def running(url,mustAll,mustOne):
                     detail = (driver.find_element(By.CSS_SELECTOR,"body > div.base-serp-page > div > section > div.details-pane__content.details-pane__content--show > div > section.core-section-container.my-3.description > div > div > section > div").get_attribute('textContent')).lstrip()
                     time.sleep(0.5)
                     matched=hasKeywords(detail, mustAll,mustOne)
-                    if matched is not None:
+                    if matched!=[]:
                         print(f'[{",".join(matched)}] ({company}) {title}: {url}')
                 except:
                     print()
