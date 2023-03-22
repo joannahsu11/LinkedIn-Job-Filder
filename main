@@ -22,17 +22,21 @@ def startExecute():
         running(url,(mustHaveAll.get()).split(','),(mustHaveOne.get()).split(','))
 
 def running(url,mustAll,mustOne):
-    def hasKeywords(a_string, mustAll,mustOne):
-        for m in mustAll:
-            if m.lower() not in a_string.lower():
-                return []
-        myList = []
-        for x in mustOne:
-            if x.lower() in a_string.lower():
-                myList.append(x)
-        if myList is None:
-            return []
-        return myList
+    def hasKeywords(a_string, mustAll, mustOne):
+        if not mustAll:
+            if not mustOne:
+                return True
+            else:
+                for o in mustOne:
+                    if o.lower() in a_string.lower():
+                        return True
+                return False
+
+        else:
+            for a in mustAll:
+                if a.lower() not in a_string.lower():
+                    return False
+        return True
 
     def parse(driver,url,mustAll,mustOne):
         driver.get(url)
@@ -63,7 +67,7 @@ def running(url,mustAll,mustOne):
                     detail = (driver.find_element(By.CSS_SELECTOR,"body > div.base-serp-page > div > section > div.details-pane__content.details-pane__content--show > div > section.core-section-container.my-3.description > div > div > section > div").get_attribute('textContent')).lstrip()
                     time.sleep(0.5)
                     matched=hasKeywords(detail, mustAll,mustOne)
-                    if matched!=[]:
+                    if matched is True:
                         print(f'[{",".join(matched)}] ({company}) {title}: {url}')
                 except:
                     print()
