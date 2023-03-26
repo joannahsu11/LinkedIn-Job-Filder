@@ -22,21 +22,8 @@ def startExecute():
         running(url,(mustHaveAll.get()).split(','),(mustHaveOne.get()).split(','))
 
 def running(url,mustAll,mustOne):
-    def hasKeywords(a_string, mustAll, mustOne):
-        if not mustAll:
-            if not mustOne:
-                return True
-            else:
-                for o in mustOne:
-                    if o.lower() in a_string.lower():
-                        return True
-                return False
-
-        else:
-            for a in mustAll:
-                if a.lower() not in a_string.lower():
-                    return False
-        return True
+    def hasKeywords(content, mustAll, mustEither):
+        return all([val.lower() in content.lower() for val in mustAll]) and any(substring.lower() in content.lower() for substring in mustEither)
 
     def parse(driver,url,mustAll,mustOne):
         driver.get(url)
