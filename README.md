@@ -1,4 +1,4 @@
-This program is to extract data from LinkedIn (without logging in) and displays the outputs
+This program is to extract data from LinkedIn (without authentication) and displays the outputs
 
 1.	Install the necessary packages: tkinter and selenium.
 2.	Download the ChromeDriver executable and update the path in line 79 in search.py accordingly.
