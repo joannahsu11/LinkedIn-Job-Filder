@@ -1,7 +1,7 @@
 This program is to extract data from LinkedIn (without authentication) and displays the outputs
 
 1.	Install the necessary packages: tkinter and selenium.
-2.	Download the ChromeDriver executable and update the path in line 79 in search_without_authentication.py accordingly.
+2.	Download the ChromeDriver executable and update the path in line 66 in search_without_authentication.py accordingly.
 3.  Run the search_without_authentication.py
 3.	Enter the job title(s) you want to search for in the "Job Title(s)" field. Separate multiple titles with a comma.
 4.	Enter the location you want to search for in the "Location" field. Note that only one location can be searched at a time.
